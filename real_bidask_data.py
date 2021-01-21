@@ -1,76 +1,144 @@
 # 대신증권 연결 확인
 import win32com.client
-
-instCpCybos = win32com.client.Dispatch("CpUtil.CpCybos")
-print(instCpCybos.IsConnect)
-
 import pandas as pd
 import numpy as np
 import math
 import time
 from datetime import datetime,timedelta
 
-today = datetime.today().strftime("%Y%m%d") 
 
-########### get code_to_name ###########
-instCpCodeMgr = win32com.client.Dispatch("CpUtil.CpCodeMgr")
-codeList = instCpCodeMgr.GetStockListByMarket(1)
+class Real_bidask():
 
-code_to_name = {}
-name_to_code = {}
+    def __init__(self):      
 
-for code in codeList:
-    name = instCpCodeMgr.CodeToName(code)
-    code_to_name[code] = name
-    name_to_code[name] = code
+        instCpCybos = win32com.client.Dispatch("CpUtil.CpCybos")
+        print(instCpCybos.IsConnect)
+
+        self.today = datetime.today().strftime("%Y%m%d") 
+
+        ########### get code_to_name ###########
+        instCpCodeMgr = win32com.client.Dispatch("CpUtil.CpCodeMgr")
+        codeList = instCpCodeMgr.GetStockListByMarket(1)
+
+        self.code_to_name = {}
+        self.name_to_code = {}
+
+        for code in codeList:
+            name = instCpCodeMgr.CodeToName(code)
+            self.code_to_name[code] = name
+            self.name_to_code[name] = code
+
+        ########### set dictionary ###########
+        self.kodex200 = {}
+        self.tiger200 = {}
+        self.kodex_inv = {}
+        self.tiger_inv = {}
+        self.kodex_active = {}
+        self.tiger_active = {}
+        self.samsung_group = {}
+        self.samsung_value = {}
+
+
+    ########### get bidask function ###########
+    def get_bidask(self,codes):  # 종목, 기간, 오늘, 시점, 분, 시간간격
+
+        now = datetime.now()
+
+        for code in codes:
+            instStockChart = win32com.client.Dispatch("CpSysDib.StockChart")
+            instStockChart.SetInputValue(0, self.name_to_code[code] )
+            instStockChart.SetInputValue(1, ord('1'))
+            instStockChart.SetInputValue(2, self.today)
+            instStockChart.SetInputValue(3, self.today)
+            instStockChart.SetInputValue(5, (0,1))
+            instStockChart.SetInputValue(6, ord('m'))  # 'm' : 분, 'T' : 틱
+            instStockChart.SetInputValue(7, 1)      # 데이터 주기
+            instStockChart.SetInputValue(9, ord('1'))
+            instStockChart.SetInputValue(10, 3)
+            instStockChart.BlockRequest()
+
+            bid = instStockChart.GetHeaderValue(11)
+            ask = instStockChart.GetHeaderValue(12) 
+
+            if code == 'KODEX 200':
+                self.kodex200[now.strftime('%H%M%S')] = [bid,ask]
+            if code == 'TIGER 200':
+                self.tiger200[now.strftime('%H%M%S')] = [bid,ask]
+            if code == 'KODEX 인버스':
+                self.kodex_inv[now.strftime('%H%M%S')] = [bid,ask]
+            if code == 'KODEX 인버스':
+                self.tiger_inv[now.strftime('%H%M%S')] = [bid,ask]
+            if code == 'KODEX 혁신기술테마액티브':
+                self.kodex_active[now.strftime('%H%M%S')] = [bid,ask]
+            if code == 'TIGER AI코리아그로스액티브':
+                self.tiger_active[now.strftime('%H%M%S')] = [bid,ask]
+            if code == 'KODEX 삼성그룹':
+                self.samsung_group[now.strftime('%H%M%S')] = [bid,ask]
+            if code == 'KODEX 삼성그룹밸류':
+                self.samsung_value[now.strftime('%H%M%S')] = [bid,ask]
+
+        time.sleep(0.5)
 
 
 
-########### get bidask function ###########
-def get_bidask(code,code_to_name):  # 종목, 기간, 오늘, 시점, 분, 시간간격
-    
-    temp = {}
-    
-    time_= 1530
-    
-    while time_ > 899:
-        
-        if len(str(time_)) == 3:
-            time_ = '0'+str(time_)
-        
-        if 60 <= int(str(time_)[-2:]) <=99:
-            time_ = int(time_) - 1
-            continue
-
-        instStockChart = win32com.client.Dispatch("Dscbo1.StockBid")
-        instStockChart.SetInputValue(0, code)
-        instStockChart.SetInputValue(2, 80)
-        instStockChart.SetInputValue(3, ord('H'))
-        instStockChart.SetInputValue(4, str(time_))
-        instStockChart.BlockRequest()
-
-        numData = instStockChart.GetHeaderValue(2)
-
-        for i in range(numData):
-            temp[instStockChart.GetDataValue(9,i)] = [instStockChart.GetDataValue(2,i),instStockChart.GetDataValue(3,i) ]
-
-        time_ = int(time_) - 1
-        print(code_to_name[code],time_)
-        time.sleep(0.3)
-
-    df = pd.DataFrame(temp).transpose()
-    df.index.names = ['time']
-    df.columns = ['bid','ask']
-        
-    df.to_pickle('bidask_data/'+ code_to_name[code]+'_'+str(today))
-    print(code_to_name[code],'finished')
-
-############# main #################   'KODEX 200','TIGER 200','KODEX 인버스','TIGER 인버스',
+############# main #################       # codes = ['KODEX 200','TIGER 200','KODEX 인버스','TIGER 인버스','KODEX 혁신기술테마액티브','TIGER AI코리아그로스액티브',
+                                            #         'KODEX 삼성그룹','KODEX 삼성그룹밸류']
 
 if __name__ == '__main__':
     
-    codes = ['KODEX 200','TIGER 200','KODEX 인버스','TIGER 인버스','KODEX 혁신기술테마액티브','TIGER AI코리아그로스액티브',
-            'KODEX 코스닥 150','TIGER 코스닥150','KODEX 삼성그룹','KODEX 삼성그룹밸류']
+    real  = Real_bidask()
+    #### current time ####
+    while True :    
+
+        now = datetime.now()
+        if int(now.strftime('%H%M%S')) > 152000:
+            break
+        else:
+            print('---',now.strftime('%H%M%S'),'---')
+
+        real.get_bidask(['KODEX 200','TIGER 200'])
+        real.get_bidask(['KODEX 인버스','TIGER 인버스'])
+        real.get_bidask(['KODEX 혁신기술테마액티브','TIGER AI코리아그로스액티브'])
+        real.get_bidask(['KODEX 삼성그룹','KODEX 삼성그룹밸류'])
     
-    for code in codes:
-        get_bidask(name_to_code[code],code_to_name)
+    df = pd.DataFrame(real.kodex200).transpose()      
+    df.index.names = ['time']
+    df.columns = ['bid','ask']
+    df.to_pickle('real_bidask_data/KODEX 200_'+str(real.today))
+
+    df = pd.DataFrame(real.tiger200).transpose()      
+    df.index.names = ['time']
+    df.columns = ['bid','ask']
+    df.to_pickle('real_bidask_data/TIGER 200_'+str(real.today))
+
+    df = pd.DataFrame(real.kodex_inv).transpose()      
+    df.index.names = ['time']
+    df.columns = ['bid','ask']
+    df.to_pickle('real_bidask_data/KODEX 인버스_'+str(real.today))
+
+    df = pd.DataFrame(real.tiger_inv).transpose()      
+    df.index.names = ['time']
+    df.columns = ['bid','ask']
+    df.to_pickle('real_bidask_data/TIGER 인버스_'+str(real.today))
+
+    df = pd.DataFrame(real.kodex_active).transpose()      
+    df.index.names = ['time']
+    df.columns = ['bid','ask']
+    df.to_pickle('real_bidask_data/KODEX 혁신기술테마액티브_'+str(real.today))
+
+    df = pd.DataFrame(real.tiger_active).transpose()      
+    df.index.names = ['time']
+    df.columns = ['bid','ask']
+    df.to_pickle('real_bidask_data/TIGER AI코리아그로스액티브_'+str(real.today))
+
+    df = pd.DataFrame(real.samsung_group).transpose()      
+    df.index.names = ['time']
+    df.columns = ['bid','ask']
+    df.to_pickle('real_bidask_data/KODEX 삼성그룹_'+str(real.today))
+
+    df = pd.DataFrame(real.samsung_value).transpose()      
+    df.index.names = ['time']
+    df.columns = ['bid','ask']
+    df.to_pickle('real_bidask_data/KODEX 삼성그룹밸류_'+str(real.today))
+
+    print('finish')
