@@ -27,7 +27,7 @@ for code in codeList:
 
 
 ########### get bidask function ###########
-def get_bidask(code,code_to_name):  # 종목, 기간, 오늘, 시점, 분, 시간간격
+def get_bidask(code,code_to_name):  
     dfs = []
     
     time_= 1530
