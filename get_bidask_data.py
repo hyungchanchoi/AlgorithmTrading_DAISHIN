@@ -28,7 +28,8 @@ for code in codeList:
 
 ########### get bidask function ###########
 def get_bidask(code,code_to_name):  # 종목, 기간, 오늘, 시점, 분, 시간간격
-    dfs = []
+    
+    temp = {}
     
     time_= 1530
     
@@ -50,24 +51,21 @@ def get_bidask(code,code_to_name):  # 종목, 기간, 오늘, 시점, 분, 시�
 
         numData = instStockChart.GetHeaderValue(2)
 
-        temp = {}
         for i in range(numData):
             temp[instStockChart.GetDataValue(9,i)] = [instStockChart.GetDataValue(2,i),instStockChart.GetDataValue(3,i) ]
-        df = pd.DataFrame(temp).transpose()
-        df.index.names = ['time']
-        df.columns = ['bid','ask']
-        dfs.append(df)
 
         time_ = int(time_) - 1
         print(code_to_name[code],time_)
         time.sleep(0.3)
-        
-    final = pd.concat(dfs)
 
-    final.to_pickle('bidask_data/'+ code_to_name[code]+'_'+str(today))
+    df = pd.DataFrame(temp).transpose()
+    df.index.names = ['time']
+    df.columns = ['bid','ask']
+        
+    df.to_pickle('bidask_data/'+ code_to_name[code]+'_'+str(today))
     print(code_to_name[code],'finished')
 
-############# main #################
+############# main #################   'KODEX 200','TIGER 200','KODEX 인버스','TIGER 인버스',
 
 if __name__ == '__main__':
     
