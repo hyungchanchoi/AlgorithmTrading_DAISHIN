@@ -100,6 +100,7 @@ if __name__ == '__main__':
         real.get_bidask(['KODEX 인버스','TIGER 인버스'])
         real.get_bidask(['KODEX 혁신기술테마액티브','TIGER AI코리아그로스액티브'])
         real.get_bidask(['KODEX 삼성그룹','KODEX 삼성그룹밸류'])
+        real.get_bidask(['KODEX 200','KODEX 혁신기술테마액티브'])
     
     df = pd.DataFrame(real.kodex200).transpose()      
     df.index.names = ['time']
