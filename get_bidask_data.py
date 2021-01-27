@@ -65,12 +65,13 @@ def get_bidask(code,code_to_name):  # 종목, 기간, 오늘, 시점, 분, 시�
     df.to_pickle('bidask_data/'+ code_to_name[code]+'_'+str(today))
     print(code_to_name[code],'finished')
 
-############# main #################   'KODEX 200','TIGER 200','KODEX 인버스','TIGER 인버스',
-
+############# main #################   
 if __name__ == '__main__':
     
     codes = ['KODEX 200','TIGER 200','KODEX 인버스','TIGER 인버스','KODEX 혁신기술테마액티브','TIGER AI코리아그로스액티브',
             'KODEX 코스닥 150','TIGER 코스닥150','KODEX 삼성그룹','KODEX 삼성그룹밸류']
+
+    codes = ['KODEX 200','KODEX 200TR','KODEX MSCI Korea TR']
     
     for code in codes:
         get_bidask(name_to_code[code],code_to_name)
