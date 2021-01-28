@@ -68,7 +68,7 @@ class Real_bidask():
                 self.tiger200[now.strftime('%H%M%S')] = [bid,ask]
             if code == 'KODEX 인버스':
                 self.kodex_inv[now.strftime('%H%M%S')] = [bid,ask]
-            if code == 'KODEX 인버스':
+            if code == 'TIGER 인버스':
                 self.tiger_inv[now.strftime('%H%M%S')] = [bid,ask]
             if code == 'KODEX 혁신기술테마액티브':
                 self.kodex_active[now.strftime('%H%M%S')] = [bid,ask]
