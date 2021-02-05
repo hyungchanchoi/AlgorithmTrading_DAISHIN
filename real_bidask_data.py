@@ -156,6 +156,6 @@ if __name__ == '__main__':
     df = pd.DataFrame(real.tiger_top10).transpose()      
     df.index.names = ['time']
     df.columns = ['bid','ask']
-    df.to_pickle('real_bidask_data/TIGER TOP10'+str(real.today))
+    df.to_pickle('real_bidask_data/TIGER TOP10_'+str(real.today))
 
     print('finish')
