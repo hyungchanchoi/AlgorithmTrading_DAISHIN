@@ -39,6 +39,8 @@ class Real_bidask():
         self.samsung_value = {}
         self.kodex200_TR = {}
         self.tiger_top10 = {}
+        self.kodex_lev = {}
+        self.kodex_invlev = {}
 
 
     ########### get bidask function ###########
@@ -82,7 +84,10 @@ class Real_bidask():
                 self.kodex200_TR[now.strftime('%H%M%S')] = [bid,ask]
             if code == 'TIGER TOP10':
                 self.tiger_top10[now.strftime('%H%M%S')] = [bid,ask]
-
+            if code == 'KODEX 200선물인버스2X':
+                self.kodex_invlev[now.strftime('%H%M%S')] = [bid,ask]
+            if code == 'KODEX 레버리지':
+                self.kodex_lev[now.strftime('%H%M%S')] = [bid,ask]
         time.sleep(0.5)
 
 
@@ -107,6 +112,7 @@ if __name__ == '__main__':
         real.get_bidask(['KODEX 혁신기술테마액티브','TIGER AI코리아그로스액티브'])
         real.get_bidask(['KODEX 삼성그룹','KODEX 삼성그룹밸류'])
         real.get_bidask(['TIGER TOP10','KODEX 200TR'])
+        real.get_bidask(['KODEX 레버리지','KODEX 200선물인버스2X'])
     
     df = pd.DataFrame(real.kodex200).transpose()      
     df.index.names = ['time']
@@ -157,5 +163,15 @@ if __name__ == '__main__':
     df.index.names = ['time']
     df.columns = ['bid','ask']
     df.to_pickle('real_bidask_data/TIGER TOP10_'+str(real.today))
+
+    df = pd.DataFrame(real.kodex_lev).transpose()      
+    df.index.names = ['time']
+    df.columns = ['bid','ask']
+    df.to_pickle('real_bidask_data/KODEX 레버리지_'+str(real.today))
+
+    df = pd.DataFrame(real.kodex_invlev).transpose()      
+    df.index.names = ['time']
+    df.columns = ['bid','ask']
+    df.to_pickle('real_bidask_data/KODEX 200선물인버스2X_'+str(real.today))
 
     print('finish')
