@@ -95,7 +95,7 @@ def get_strength_min(code,code_to_name):  # 종목, 기간, 오늘, 시점, 분,
 if __name__ == '__main__':
     
     codes = ['삼성전자','SK하이닉스','LG화학','NAVER','현대차','삼성SDI','카카오','셀트리온','현대모비스','엔씨소프트','TIGER TOP10']
-    codes = ['카카오']
+    # codes = ['카카오']
 
 
     data_type = input('data type? (min ot tick) :')
